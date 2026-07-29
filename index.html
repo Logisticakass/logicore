@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogiCore · Kassel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="menu">
+    <div class="brand">
+      <span class="brand-mark">LC</span>
+      <div>
+        <h2>LogiCore</h2>
+        <p class="brand-sub">Kassel · Logística</p>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-link active" data-modulo="recolecciones">
+        <span class="nav-ico">◍</span> Control de Recolecciones
+      </button>
+      <button class="nav-link" data-modulo="visitas">
+        <span class="nav-ico">◎</span> Control de Visitas
+      </button>
+      <button class="nav-link" disabled title="Próximamente">
+        <span class="nav-ico">▤</span> Planeación de Rutas
+      </button>
+      <button class="nav-link" disabled title="Próximamente">
+        <span class="nav-ico">▥</span> Control de Jaulas
+      </button>
+      <button class="nav-link" disabled title="Próximamente">
+        <span class="nav-ico">▦</span> Manifiestos
+      </button>
+      <button class="nav-link" disabled title="Próximamente">
+        <span class="nav-ico">▧</span> Gastos
+      </button>
+    </nav>
+
+    <div class="sync-status" id="syncStatus">
+      <span class="dot" id="syncDot"></span>
+      <span id="syncLabel">Guardado local</span>
+    </div>
+  </aside>
+
+  <main class="contenido">
+
+    <!-- ===================== MÓDULO 1: RECOLECCIONES ===================== -->
+    <section id="modulo-recolecciones" class="modulo activo">
+
+      <div class="modulo-header">
+        <div>
+          <h1>Control de Recolecciones</h1>
+          <p class="subtitulo">Registro y seguimiento de solicitudes de recolección por tienda</p>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+<div class="kpis" id="kpisRecolecciones"></div>
+
+<!-- Barra superior -->
+<div class="barra-superior">
+
+    <input
+        type="text"
+        id="buscarFolio"
+        placeholder="Buscar por folio o tienda...">
+
+    <select id="filtroEstado">
+        <option value="">Todos los estados</option>
+        <option>Pendiente</option>
+        <option>Asignada</option>
+        <option>En proceso</option>
+        <option>Realizada</option>
+        <option>Cancelada</option>
+    </select>
+<!--
+    <button
+        id="btnAccionesRecoleccion"
+        class="btn-primario">
+
+        ⚙ Acciones
+
+    </button>
+-->
+</div>
+
+<!-- ===================================================== -->
+<!-- PANEL PRINCIPAL DEL MÓDULO -->
+<!-- ===================================================== -->
+
+<div id="panelInicioRecolecciones" class="panel-inicio">
+
+    <div class="card-accion">
+
+        <div class="icono-accion">
+            🔍
+        </div>
+
+        <h3>Buscar pedido</h3>
+
+        <p>
+
+            Consulta un pedido existente
+            en Google Sheets y crea una
+            recolección automáticamente.
+
+        </p>
+
+        <button
+            id="btnBuscarPedido"
+            class="btn-primario">
+
+            Buscar pedido
+
+        </button>
+
+    </div>
+
+    <div class="card-accion">
+
+        <div class="icono-accion">
+            ➕
+        </div>
+
+        <h3>Nueva recolección</h3>
+
+        <p>
+
+            Registra manualmente una
+            recolección cuando el pedido
+            aún no exista.
+
+        </p>
+
+        <button
+            id="btnNuevaManual"
+            class="btn-secundario">
+
+            Nueva recolección
+
+        </button>
+
+    </div>
+
+</div>
+<!-- ===================================================== -->
+<!-- CONSULTA DE PEDIDO -->
+<!-- ===================================================== -->
+
+<div id="panelBuscarPedido" class="formulario" style="display:none;">
+
+    <h2>Consultar pedido</h2>
+
+    <p class="subtitulo">
+        Ingresa el folio para consultar la información del pedido.
+    </p>
+
+    <div class="grid-form">
+
+        <div>
+            <label>Folio del pedido *</label>
+
+            <input
+                type="text"
+                id="folioBusquedaPedido"
+                placeholder="Ej. QRO9557">
+        </div>
+
+    </div>
+
+    <!-- Resultado de la búsqueda -->
+    <div id="resultadoBusquedaPedido" class="info-pedido" style="display:none;">
+
+        <div class="pedido-header">
+            <span class="pedido-badge">📦 Pedido encontrado</span>
+            <h3 id="consultaPedidoTitulo">---</h3>
+        </div>
+
+        <div class="pedido-grid">
+
+            <div class="dato">
+                <span>Operador</span>
+                <strong id="consultaOperador">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Unidad</span>
+                <strong id="consultaUnidad">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>CP</span>
+                <strong id="consultaCP">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Colonia</span>
+                <strong id="consultaColonia">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Municipio</span>
+                <strong id="consultaMunicipio">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Estatus</span>
+                <strong id="consultaEstatus">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Documento</span>
+                <strong id="consultaDocumento">-</strong>
+            </div>
+
+            <div class="dato">
+                <span>Jaula</span>
+                <strong id="consultaJaula">-</strong>
+            </div>
+
+        </div>
+
+        <div class="acciones-formulario">
+            <button
+                id="btnCrearRecoleccionDesdePedido"
+                class="btn-primario"
+                type="button">
+                + Crear recolección
+            </button>
+        </div>
+
+    </div>
+
+    <div class="acciones-formulario">
+
+        <button
+            id="btnRegresarBusqueda"
+            class="btn-secundario"
+            type="button">
+            ← Regresar
+        </button>
+
+        <button
+            id="btnEjecutarBusqueda"
+            class="btn-primario"
+            type="button">
+            Buscar pedido
+        </button>
+
+    </div>
+
+</div>
+<!-- ===================================================== -->
+<!-- FORMULARIO -->
+<!-- ===================================================== -->
+
+<div
+id="formularioRecoleccion"
+class="formulario"
+style="display:none;">
+        <h2>Nueva recolección</h2>
+        <div class="grid-form">
+          <div>
+            <label>Folio *</label>
+            <input type="text" id="folio" placeholder="Ej. 12548">
+            <span class="error" id="errorFolio"></span>
+          </div>
+          <div>
+  <label>Documento de salida</label>
+  <input
+    type="text"
+    id="documentoSalida"
+    placeholder="Ej. EAL2614 (si se deja vacío usa el folio)">
+  <span class="error" id="errorDocumentoSalida"></span>
+</div>
+          <div>
+          <div id="infoPedido" class="info-pedido" style="display:none;">
+    <div class="pedido-header">
+
+        <span class="pedido-badge">📦 Pedido encontrado</span>
+
+        <h3 id="pedidoTitulo">---</h3>
+
+    </div>
+
+    <div class="pedido-grid">
+
+        <div class="dato">
+            <span>Operador</span>
+            <strong id="datoOperador">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Unidad</span>
+            <strong id="datoUnidad">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>CP</span>
+            <strong id="datoCP">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Colonia</span>
+            <strong id="datoColonia">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Municipio</span>
+            <strong id="datoMunicipio">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Estatus</span>
+            <strong id="datoEstatus">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Documento</span>
+            <strong id="datoDocumento">-</strong>
+        </div>
+
+        <div class="dato">
+            <span>Jaula</span>
+            <strong id="datoJaula">-</strong>
+        </div>
+
+    </div>
+
+</div>
+            <label>Tienda *</label>
+            <select id="tienda">
+              <option value="">Selecciona una tienda</option>
+              <option>LA VIGA</option>
+              <option>PUEBLA</option>
+              <option>INTERLOMAS</option>
+              <option>MIRAMONTES</option>
+              <option>ZARAGOZA</option>
+              <option>TOREO</option>
+              <option>METEPEC</option>
+              <option>SANTA FE</option>
+              <option>GUSTAVO BAZ</option>
+              <option>PERINORTE</option>
+              <option>QUERETARO</option>
+              <option>POLANCO</option>
+            </select>
+            <span class="error" id="errorTienda"></span>
+          </div>
+          <div>
+            <label>Fecha compromiso *</label>
+            <input type="date" id="fechaCompromiso">
+            <span class="error" id="errorFecha"></span>
+          </div>
+          <div>
+            <label>Jaula asignada</label>
+            <input type="text" id="jaula" placeholder="Ej. J-04 (opcional)">
+          </div>
+        </div>
+        <label>Observaciones</label>
+        <textarea id="observaciones" rows="3" placeholder="Escribe alguna observación..."></textarea>
+
+        <div class="acciones-formulario">
+          <button id="btnCancelarRecoleccion" class="btn-secundario" type="button">Cancelar</button>
+          <button id="btnGuardarRecoleccion" class="btn-primario" type="button">Guardar recolección</button>
+        </div>
+      </div>
+
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>DOCUMENTO SALIDA</th>
+              <th>Tienda</th>
+              <th>Fecha compromiso</th>
+              <th>Estado</th>
+              <th>Jaula</th>
+              <th>UBICADO EN</th>
+              <th>Observaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaRecolecciones"></tbody>
+        </table>
+        <p class="tabla-vacia" id="vacioRecolecciones" style="display:none;">
+          Aún no hay recolecciones registradas. Da clic en "+ Nueva recolección" para agregar la primera.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO 2: VISITAS ===================== -->
+    <section id="modulo-visitas" class="modulo">
+
+      <div class="modulo-header">
+        <div>
+          <h1>Control de Visitas</h1>
+          <p class="subtitulo">Seguimiento de visitas programadas y realizadas por operador</p>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpisVisitas"></div>
+
+      <div class="barra-superior">
+        <input type="text" id="buscarVisita" placeholder="Buscar por tienda u operador...">
+        <select id="filtroEstadoVisita">
+          <option value="">Todos los estados</option>
+          <option>Programada</option>
+          <option>Realizada</option>
+          <option>Cancelada</option>
+        </select>
+        <button id="btnNuevaVisita" class="btn-primario">+ Nueva visita</button>
+      </div>
+
+      <div
+  id="formularioVisita"
+  class="formulario"
+  style="display:none;">
+
+        <h2>Nueva visita</h2>
+        <div class="grid-form">
+          <div>
+            <label>Tienda *</label>
+            <select id="tiendaVisita">
+              <option value="">Selecciona una tienda</option>
+              <option>LA VIGA</option>
+              <option>PUEBLA</option>
+              <option>INTERLOMAS</option>
+              <option>MIRAMONTES</option>
+              <option>ZARAGOZA</option>
+              <option>TOREO</option>
+              <option>METEPEC</option>
+              <option>SANTA FE</option>
+              <option>GUSTAVO BAZ</option>
+              <option>PERINORTE</option>
+              <option>QUERETARO</option>
+              <option>POLANCO</option>
+            </select>
+            <span class="error" id="errorTiendaVisita"></span>
+          </div>
+          <div>
+            <label>Operador *</label>
+            <select id="operadorVisita">
+              <option value="">Selecciona un operador</option>
+              <option>Daniel Lopez</option>
+              <option>Diego Rueda</option>
+              <option>Erick Pineda</option>
+              <option>Agustín Gayosso</option>
+              <option>Jesús Cardenas</option>
+              <option>Felix Fernandez</option>
+              <option>Luis Garcia</option>
+              <option>Luis Aguirre</option>
+              <option>Eduardo Medina</option>
+              <option>Gustavo Alegria</option>
+              <option>Miguel Ponce</option>
+              <option>Enrique Briseño</option>
+              <option>Fernando Garcia</option>
+              <option>Joel Monroy</option>
+              <option>Miguel Mejía</option>
+              <option>Omar Dolores</option>
+            </select>
+            <span class="error" id="errorOperadorVisita"></span>
+          </div>
+          <div>
+            <label>Fecha programada *</label>
+            <input type="date" id="fechaProgramada">
+            <span class="error" id="errorFechaVisita"></span>
+          </div>
+        </div>
+        <label>Notas</label>
+        <textarea id="notasVisita" rows="3" placeholder="Motivo de la visita, indicaciones..."></textarea>
+
+        <div class="acciones-formulario">
+          <button id="btnCancelarVisita" class="btn-secundario" type="button">Cancelar</button>
+          <button id="btnGuardarVisita" class="btn-primario" type="button">Guardar visita</button>
+        </div>
+      </div>
+
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tienda</th>
+              <th>Operador</th>
+              <th>Fecha programada</th>
+              <th>Estado</th>
+              <th>Fecha realizada</th>
+              <th>Notas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaVisitas"></tbody>
+        </table>
+        <p class="tabla-vacia" id="vacioVisitas" style="display:none;">
+          Aún no hay visitas registradas. Da clic en "+ Nueva visita" para agregar la primera.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+<!--
+<script src="js/utils.js"></script>
+<script src="js/googleSheets.js"></script>
+<script src="js/recolecciones.js"></script>
+<script src="js/visitas.js"></script>
+<script src="js/script.js"></script>
+-->
+<script src="script.js"></script>
+</body>
+</html>
