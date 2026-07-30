@@ -354,10 +354,16 @@ style="display:none;">
             <span class="error" id="errorTienda"></span>
           </div>
           <div>
-            <label>Fecha compromiso *</label>
-            <input type="date" id="fechaCompromiso">
-            <span class="error" id="errorFecha"></span>
-          </div>
+  <label>Fecha de entrega *</label>
+  <input type="date" id="fechaCompromiso">
+  <span class="error" id="errorFecha"></span>
+</div>
+
+<div>
+  <label>Fecha de recolección *</label>
+  <input type="date" id="fechaRecoleccion">
+  <span class="error" id="errorFechaRecoleccion"></span>
+</div>
           <div>
             <label>Jaula asignada</label>
             <input type="text" id="jaula" placeholder="Ej. J-04 (opcional)">
@@ -374,19 +380,20 @@ style="display:none;">
 
       <div class="tabla-container">
         <table>
-          <thead>
-            <tr>
-              <th>Folio</th>
-              <th>DOCUMENTO SALIDA</th>
-              <th>Tienda</th>
-              <th>Fecha compromiso</th>
-              <th>Estado</th>
-              <th>Jaula</th>
-              <th>UBICADO EN</th>
-              <th>Observaciones</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+         <thead>
+  <tr>
+    <th>Folio</th>
+    <th>DOCUMENTO SALIDA</th>
+    <th>Tienda</th>
+    <th>FECHA DE ENTREGA</th>
+    <th>FECHA DE RECOLECCIÓN</th>
+    <th>Estado</th>
+    <th>Jaula</th>
+    <th>UBICADO EN</th>
+    <th>Observaciones</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
           <tbody id="tablaRecolecciones"></tbody>
         </table>
         <p class="tabla-vacia" id="vacioRecolecciones" style="display:none;">

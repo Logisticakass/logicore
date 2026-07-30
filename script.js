@@ -596,20 +596,23 @@ function limpiarFormularioRecoleccion() {
   inputFecha.value = "";
   inputJaula.value = "";
   textareaObs.value = "";
+  inputFechaRecoleccion.value = "";
+
+ [
+  inputFolio,
+  inputDocumentoSalida,
+  selectTienda,
+  inputFecha,
+  inputFechaRecoleccion
+].forEach((c) => c.classList.remove("campo-error"));
 
   [
-    inputFolio,
-    inputDocumentoSalida,
-    selectTienda,
-    inputFecha
-  ].forEach((c) => c.classList.remove("campo-error"));
-
-  [
-    "errorFolio",
-    "errorDocumentoSalida",
-    "errorTienda",
-    "errorFecha"
-  ].forEach((id) => {
+  "errorFolio",
+  "errorDocumentoSalida",
+  "errorTienda",
+  "errorFecha",
+  "errorFechaRecoleccion"
+].forEach((id) => {
     document.getElementById(id).textContent = "";
   });
 
@@ -639,20 +642,35 @@ function guardarRecoleccion() {
     valido = false;
   }
 
-  if (!inputFecha.value) {
-    document.getElementById("errorFecha").textContent = "La fecha compromiso es obligatoria";
+ if (!inputFecha.value) {
+    document.getElementById("errorFecha").textContent = "La fecha de entrega es obligatoria";
     inputFecha.classList.add("campo-error");
     valido = false;
-  }
+}
+
+const inputFechaRecoleccion = document.getElementById("fechaRecoleccion");
+
+if (!inputFechaRecoleccion.value) {
+    document.getElementById("errorFechaRecoleccion").textContent = "La fecha de recolección es obligatoria";
+    inputFechaRecoleccion.classList.add("campo-error");
+    valido = false;
+}
 
   if (!valido) return;
 
- const nuevaRecoleccion = {
+const nuevaRecoleccion = {
     id: generarId(),
     folio,
     documentoSalida: inputDocumentoSalida.value.trim() || folio,
     tienda: selectTienda.value,
+
+    // Internamente conservamos fechaCompromiso,
+    // pero en pantalla ahora se llama "Fecha de entrega"
     fechaCompromiso: inputFecha.value,
+
+    // Nueva fecha
+    fechaRecoleccion: inputFechaRecoleccion.value,
+
     observaciones: textareaObs.value.trim(),
     estado: "Pendiente",
     jaula: inputJaula.value.trim() || "--",
@@ -758,9 +776,10 @@ function renderRecolecciones() {
         <td class="folio">${r.folio}</td>
         <td class="folio">${r.documentoSalida || r.folio}</td>
         <td>${r.tienda}</td>
-        <td>${formatearFecha(r.fechaCompromiso)}</td>
-        <td>
-          <select class="selector-estado" data-id="${r.id}">
+<td>${formatearFecha(r.fechaCompromiso)}</td>
+<td>${formatearFecha(r.fechaRecoleccion)}</td>
+<td>
+  <select class="selector-estado" data-id="${r.id}">
             ${ESTADOS_RECOLECCION.map((e) => `<option value="${e}" ${e === r.estado ? "selected" : ""}>${e}</option>`).join("")}
           </select>
         </td>
