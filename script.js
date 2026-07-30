@@ -117,6 +117,28 @@ async function cargarDatosDesdeSheets() {
 
 }
 
+/* ============================================================
+   SINCRONIZACIÓN AUTOMÁTICA MULTIUSUARIO
+   ============================================================ */
+
+const INTERVALO_SINCRONIZACION = 30000; // 30 segundos
+
+setInterval(() => {
+
+  // Solo sincronizamos si la pestaña está visible
+  if (document.visibilityState === "visible") {
+    cargarDatosDesdeSheets();
+  }
+
+}, INTERVALO_SINCRONIZACION);
+document.addEventListener("visibilitychange", () => {
+
+  if (document.visibilityState === "visible") {
+    cargarDatosDesdeSheets();
+  }
+
+});
+
 /* ---------------------- UTILIDADES ---------------------- */
 
 function cargarDeLocalStorage(clave) {
@@ -357,65 +379,106 @@ const resultadoBusquedaPedido = document.getElementById("resultadoBusquedaPedido
 
 let pedidoConsultado = null;
 
-btnEjecutarBusqueda.addEventListener("click", async () => {
+async function ejecutarBusquedaPedido() {
 
-    const folio = folioBusquedaPedido.value.trim();
+    // Tomamos el folio, quitamos espacios y lo convertimos a MAYÚSCULAS
+    const folio = folioBusquedaPedido.value.trim().toUpperCase();
 
     if (!folio) {
         mostrarToast("Escribe un folio para buscar", true);
         return;
     }
 
+    // También mostramos el folio en mayúsculas en el campo
+    folioBusquedaPedido.value = folio;
+
+    // Evitamos que piquen varias veces mientras está buscando
+    btnEjecutarBusqueda.disabled = true;
+    const textoOriginalBoton = btnEjecutarBusqueda.textContent;
+    btnEjecutarBusqueda.textContent = "Buscando...";
+
     mostrarToast("Buscando pedido...");
 
-    const respuesta = await buscarPedidoGoogle(folio);
+    try {
 
-    if (!respuesta) {
-        mostrarToast("No se pudo conectar con Google Sheets", true);
+        const respuesta = await buscarPedidoGoogle(folio);
+
+        if (!respuesta) {
+            mostrarToast("No se pudo conectar con Google Sheets", true);
+            resultadoBusquedaPedido.style.display = "none";
+            return;
+        }
+
+        if (!respuesta.ok) {
+            mostrarToast("Pedido no encontrado", true);
+            resultadoBusquedaPedido.style.display = "none";
+            return;
+        }
+
+        const pedido = respuesta.datos;
+
+        pedidoConsultado = pedido;
+
+        console.log("PEDIDO COMPLETO:", pedido);
+
+        document.getElementById("consultaPedidoTitulo").textContent =
+            pedido.pedido || folio;
+
+        document.getElementById("consultaOperador").textContent =
+            pedido.operador || "-";
+
+        document.getElementById("consultaUnidad").textContent =
+            pedido.unidad || "-";
+
+        document.getElementById("consultaCP").textContent =
+            pedido.cp || "-";
+
+        document.getElementById("consultaColonia").textContent =
+            pedido.colonia || "-";
+
+        document.getElementById("consultaMunicipio").textContent =
+            pedido["muni/dele"] || "-";
+
+        document.getElementById("consultaEstatus").textContent =
+            pedido.estatus || "-";
+
+        document.getElementById("consultaDocumento").textContent =
+            pedido.documento || "-";
+
+        document.getElementById("consultaJaula").textContent =
+            pedido.jaula || "-";
+
+        resultadoBusquedaPedido.style.display = "block";
+
+        mostrarToast("Pedido encontrado");
+
+    } catch (error) {
+
+        console.error("Error buscando pedido:", error);
+        mostrarToast("Error al buscar el pedido", true);
         resultadoBusquedaPedido.style.display = "none";
-        return;
+
+    } finally {
+
+        // Pase lo que pase, regresamos el botón a la normalidad
+        btnEjecutarBusqueda.disabled = false;
+        btnEjecutarBusqueda.textContent = textoOriginalBoton;
+
     }
+}
 
-    if (!respuesta.ok) {
-        mostrarToast("Pedido no encontrado", true);
-        resultadoBusquedaPedido.style.display = "none";
-        return;
+
+// Buscar dando clic
+btnEjecutarBusqueda.addEventListener("click", ejecutarBusquedaPedido);
+
+
+// Buscar presionando ENTER
+folioBusquedaPedido.addEventListener("keydown", (event) => {
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        ejecutarBusquedaPedido();
     }
-
-    const pedido = respuesta.datos;
-
-    pedidoConsultado = pedido;
-console.log("PEDIDO COMPLETO:", pedido);
-    document.getElementById("consultaPedidoTitulo").textContent =
-        pedido.pedido || folio;
-
-    document.getElementById("consultaOperador").textContent =
-        pedido.operador || "-";
-
-    document.getElementById("consultaUnidad").textContent =
-        pedido.unidad || "-";
-
-    document.getElementById("consultaCP").textContent =
-        pedido.cp || "-";
-
-    document.getElementById("consultaColonia").textContent =
-        pedido.colonia || "-";
-
-    document.getElementById("consultaMunicipio").textContent =
-        pedido["muni/dele"] || "-";
-
-    document.getElementById("consultaEstatus").textContent =
-        pedido.estatus || "-";
-
-    document.getElementById("consultaDocumento").textContent =
-        pedido.documento || "-";
-
-    document.getElementById("consultaJaula").textContent =
-        pedido.jaula || "-";
-
-    resultadoBusquedaPedido.style.display = "block";
-
-    mostrarToast("Pedido encontrado");
 
 });
 

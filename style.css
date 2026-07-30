@@ -307,7 +307,13 @@ nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
   background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden;
+
+  /* Permite desplazar la tabla horizontalmente en pantallas pequeñas */
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* Hace más suave el desplazamiento en celular */
+  -webkit-overflow-scrolling: touch;
 }
 
 table { width: 100%; border-collapse: collapse; }
@@ -457,4 +463,20 @@ select.selector-estado {
     color:#667085;
     line-height:1.6;
     margin-bottom:22px;
+}
+/* ============================================================
+   RESPONSIVE - TABLAS EN CELULAR
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  .tabla-container table {
+    min-width: 950px;
+  }
+
+  .tabla-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
 }
