@@ -655,6 +655,14 @@ if (!inputFechaRecoleccion.value) {
     inputFechaRecoleccion.classList.add("campo-error");
     valido = false;
 }
+const selectAlmacen = document.getElementById("almacen");
+
+if (!selectAlmacen.value) {
+    document.getElementById("errorAlmacen").textContent =
+        "Selecciona un almacén";
+    selectAlmacen.classList.add("campo-error");
+    valido = false;
+}
 
   if (!valido) return;
 
@@ -670,7 +678,8 @@ const nuevaRecoleccion = {
 
     // Nueva fecha
     fechaRecoleccion: inputFechaRecoleccion.value,
-
+// Nuevo almacén
+almacen: selectAlmacen.value,
     observaciones: textareaObs.value.trim(),
     estado: "Pendiente",
     jaula: inputJaula.value.trim() || "--",
@@ -778,7 +787,9 @@ function renderRecolecciones() {
         <td>${r.tienda}</td>
 <td>${formatearFecha(r.fechaCompromiso)}</td>
 <td>${formatearFecha(r.fechaRecoleccion)}</td>
-<td>
+<td class="mono">
+  ${r.almacen || "--"}
+</td>
   <select class="selector-estado" data-id="${r.id}">
             ${ESTADOS_RECOLECCION.map((e) => `<option value="${e}" ${e === r.estado ? "selected" : ""}>${e}</option>`).join("")}
           </select>
